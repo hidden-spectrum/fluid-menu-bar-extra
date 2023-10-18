@@ -48,13 +48,13 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
             return event
         }
 
-        globalEventMonitor = GlobalEventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            if let window = self?.window, window.isKeyWindow {
-                // Resign key window status if a external non-activating event is triggered,
-                // such as other system status bar menus.
-                window.resignKey()
-            }
-        }
+//        globalEventMonitor = GlobalEventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+//            if let window = self?.window, window.isKeyWindow {
+//                // Resign key window status if a external non-activating event is triggered,
+//                // such as other system status bar menus.
+//                window.resignKey()
+//            }
+//        }
 
         window.delegate = self
         localEventMonitor?.start()
@@ -86,6 +86,9 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
     }
 
     func windowDidResignKey(_ notification: Notification) {
+        guard window.sheets.isEmpty else {
+            return
+        }
         globalEventMonitor?.stop()
         dismissWindow()
     }
