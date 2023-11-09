@@ -37,4 +37,10 @@ public class FluidMenuBarExtraController: ObservableObject {
             }
         }
     }
+    
+    // MARK: Locking
+    
+    public func setLockWindowOpen(to lockEnabled: Bool) {
+        statusItem?.preventDismissal = lockEnabled
+    }
 }

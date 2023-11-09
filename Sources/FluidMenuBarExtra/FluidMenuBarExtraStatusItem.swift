@@ -18,6 +18,7 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
     var isWindowVisible: Bool {
         window.isVisible
     }
+    var preventDismissal: Bool = false
     
     // MARK: Private
     
@@ -47,15 +48,7 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
 
             return event
         }
-
-//        globalEventMonitor = GlobalEventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-//            if let window = self?.window, window.isKeyWindow {
-//                // Resign key window status if a external non-activating event is triggered,
-//                // such as other system status bar menus.
-//                window.resignKey()
-//            }
-//        }
-
+        
         window.delegate = self
         localEventMonitor?.start()
     }
@@ -79,9 +72,8 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
         DistributedNotificationCenter.default().post(name: .beginMenuTracking, object: nil)
         window.makeKeyAndOrderFront(nil)
     }
-
+    
     func windowDidBecomeKey(_ notification: Notification) {
-        globalEventMonitor?.start()
         setButtonHighlighted(to: true)
     }
 
@@ -89,8 +81,9 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
         guard window.sheets.isEmpty else {
             return
         }
-        globalEventMonitor?.stop()
-        dismissWindow()
+        if !preventDismissal {
+            dismissWindow()
+        }
     }
 
     func dismissWindow(animate: Bool = true, completionHandler: (() -> Void)? = nil) {
