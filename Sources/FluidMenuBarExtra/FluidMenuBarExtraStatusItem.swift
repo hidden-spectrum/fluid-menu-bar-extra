@@ -7,6 +7,7 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 
 /// An individual element displayed in the system menu bar that displays a window
@@ -15,10 +16,8 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
     
     // MARK: Internal
     
-    var isWindowVisible: Bool {
-        window.isVisible
-    }
     var preventDismissal: Bool = false
+    var isWindowVisible = PassthroughSubject<Bool, Never>()
     
     // MARK: Private
     
@@ -71,6 +70,7 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
         // Tells the system to persist the menu bar in full screen mode.
         DistributedNotificationCenter.default().post(name: .beginMenuTracking, object: nil)
         window.makeKeyAndOrderFront(nil)
+        isWindowVisible.send(true)
     }
     
     func windowDidBecomeKey(_ notification: Notification) {
@@ -98,10 +98,16 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
             window.animator().alphaValue = 0
 
         } completionHandler: { [weak self] in
-            self?.window.orderOut(nil)
-            self?.window.alphaValue = 1
-            self?.setButtonHighlighted(to: false)
-            completionHandler?()
+            defer {
+                completionHandler?()
+            }
+            guard let self else {
+                return
+            }
+            self.window.orderOut(nil)
+            self.window.alphaValue = 1
+            self.setButtonHighlighted(to: false)
+            self.isWindowVisible.send(false)
         }
     }
 
