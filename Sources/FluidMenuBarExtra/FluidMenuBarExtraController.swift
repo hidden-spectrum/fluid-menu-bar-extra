@@ -6,11 +6,12 @@ import Combine
 import SwiftUI
 
 
-public class FluidMenuBarExtraController: ObservableObject {
+public final class FluidMenuBarExtraController: ObservableObject {
     
     // MARK: Public
     
-    @Published public var isWindowVisible: Bool = false
+    public var isWindowVisible: Bool { statusItem?.isWindowVisible ?? false }
+    public var onVisibilityChangedHandler: ((Bool) -> Void)?
     
     // MARK: Internal
     
@@ -29,13 +30,12 @@ public class FluidMenuBarExtraController: ObservableObject {
     
     private func addObservers() {
         guard let statusItem = statusItem else {
-            isWindowVisible = false
             return
         }
-        statusItem.isWindowVisible
+        statusItem.windowWisibilitySubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newValue in
-                self?.isWindowVisible = newValue
+                self?.onVisibilityChangedHandler?(newValue)
             }
             .store(in: &cancellables)
     }

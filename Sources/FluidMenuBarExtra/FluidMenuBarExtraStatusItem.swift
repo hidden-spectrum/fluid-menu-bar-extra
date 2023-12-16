@@ -16,8 +16,9 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
     
     // MARK: Internal
     
+    var isWindowVisible: Bool { window.isVisible }
     var preventDismissal: Bool = false
-    var isWindowVisible = PassthroughSubject<Bool, Never>()
+    var windowWisibilitySubject = PassthroughSubject<Bool, Never>()
     
     // MARK: Private
     
@@ -70,7 +71,7 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
         // Tells the system to persist the menu bar in full screen mode.
         DistributedNotificationCenter.default().post(name: .beginMenuTracking, object: nil)
         window.makeKeyAndOrderFront(nil)
-        isWindowVisible.send(true)
+        windowWisibilitySubject.send(true)
     }
     
     func windowDidBecomeKey(_ notification: Notification) {
@@ -107,7 +108,7 @@ final class FluidMenuBarExtraStatusItem: NSObject, NSWindowDelegate {
             self.window.orderOut(nil)
             self.window.alphaValue = 1
             self.setButtonHighlighted(to: false)
-            self.isWindowVisible.send(false)
+            self.windowWisibilitySubject.send(false)
         }
     }
 
