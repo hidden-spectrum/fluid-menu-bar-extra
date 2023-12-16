@@ -33,6 +33,7 @@ public final class FluidMenuBarExtraController: ObservableObject {
             return
         }
         statusItem.windowWisibilitySubject
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newValue in
                 self?.onVisibilityChangedHandler?(newValue)
